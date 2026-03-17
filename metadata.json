@@ -1,0 +1,7 @@
+{
+  "name": "Golf Bet Master",
+  "description": "An intelligent golf betting calculator that parses scorecard images and automatically calculates payouts based on custom stroke-play rules and double-stake triggers.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
