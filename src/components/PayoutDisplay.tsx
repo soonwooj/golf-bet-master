@@ -8,13 +8,14 @@ interface Props {
 
 const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const KAKAO_KEY = 'fafeb6fa36973c106a15ccbb7e27c55c';
+  
+  // .env.local의 VITE_KAKAO_JS_KEY를 정확히 읽어옵니다.
+  const KAKAO_KEY = import.meta.env.VITE_KAKAO_JS_KEY;
 
-  // 컴포넌트 마운트 시 카카오 SDK 초기화 시도
   useEffect(() => {
     const initKakao = () => {
       const kakao = (window as any).Kakao;
-      if (kakao && !kakao.isInitialized()) {
+      if (kakao && KAKAO_KEY && !kakao.isInitialized()) {
         try {
           kakao.init(KAKAO_KEY);
           console.log('Kakao SDK 초기화 성공');
@@ -24,10 +25,9 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
       }
     };
     
-    // SDK 스크립트가 로드될 시간을 주기 위해 약간의 지연 후 실행
     const timer = setTimeout(initKakao, 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [KAKAO_KEY]);
 
   if (totals.length === 0) return null;
 
@@ -39,7 +39,6 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
     return acc;
   }, {} as Record<string, PayoutSummary[]>);
 
-  // 공유 텍스트 생성 (이모지 추가로 더 직관적으로 수정)
   const shareText = `⛳️ [Golf Bet Pro 정산 결과]\n\n` + 
     totals.sort((a,b) => b.netAmount - a.netAmount)
       .map(t => `${t.name}: ${t.netAmount > 0 ? '💰+' : ''}${t.netAmount.toLocaleString()}원`)
@@ -50,10 +49,8 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
 
   const shareUrl = window.location.href;
 
-  // 카카오톡 공유 실행 함수
   const handleKakaoShare = () => {
     const kakao = (window as any).Kakao;
-
     if (kakao && kakao.isInitialized()) {
       kakao.Share.sendDefault({
         objectType: 'text',
@@ -64,7 +61,6 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
         },
       });
     } else {
-      // SDK가 없거나 초기화 실패 시 클립보드 복사로 대체
       handleCopyToClipboard();
     }
     setShowShareMenu(false);
@@ -108,22 +104,6 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
     document.body.removeChild(textarea);
   };
 
-  const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: '골프 정산 결과',
-          text: shareText,
-        });
-      } catch (err) {
-        console.log('Share failed', err);
-      }
-    } else {
-      handleCopyToClipboard();
-    }
-    setShowShareMenu(false);
-  };
-
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
@@ -132,7 +112,7 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
             <span className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698c-.22-.07-.412-.164-.567-.267C8.27 8.441 8 8.267 8 8s.27-.441.433-.582zM11 12.849v-1.698c.22.07.412.164.567.267.163.141.433.315.433.582s-.27.441-.433.582c-.155.103-.346.196-.567.267z" />
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a4.547 4.547.000-1.676-.662c-.31-.074-.525-.136-.715-.22a1 1 0 10-.866 1.802c.23.11.527.212.897.306V15a1 1 0 102 0v-.092c.935-.118 1.887-.455 2.57-1.03.683-.575 1.03-1.339 1.03-2.128 0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 8.842V6.901c.935.118 1.887.455 2.57 1.03a1 1 0 101.324-1.492c-.683-.575-1.635-.912-2.57-1.03V5z" clipRule="evenodd" />
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941a4.547 4.547 0 001.676-.662c.31-.074-.525-.136-.715-.22a1 1 0 10-.866 1.802c.23.11.527.212.897.306V15a1 1 0 102 0v-.092c.935-.118 1.887-.455 2.57-1.03.683-.575 1.03-1.339 1.03-2.128 0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 8.842V6.901c.935.118 1.887.455 2.57 1.03a1 1 0 101.324-1.492c-.683-.575-1.635-.912-2.57-1.03V5z" clipRule="evenodd" />
               </svg>
             </span>
             최종 정산 보고서
@@ -169,7 +149,6 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
           </div>
         </div>
 
-        {/* 기존 정산 리스트 UI 부분 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {totals.sort((a, b) => b.netAmount - a.netAmount).map((t, idx) => (
             <div key={idx} className={`p-5 rounded-3xl border-2 ${t.netAmount >= 0 ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100' : 'bg-rose-50/50 dark:bg-rose-900/10 border-rose-100'}`}>
@@ -181,7 +160,6 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
           ))}
         </div>
 
-        {/* 송금 상세 내역 부분 */}
         <div className="space-y-4">
           {(Object.entries(groupedPayouts) as [string, PayoutSummary[]][]).map(([sender, items], idx) => (
             <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100">
