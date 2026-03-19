@@ -31,7 +31,13 @@
       if (useDark) {
         document.documentElement.classList.add('dark');
       }
-      document.body.classList.add('bg-slate-950');
+      if (document.body) {
+        document.body.classList.add('bg-slate-950');
+      } else {
+        window.addEventListener('DOMContentLoaded', () => {
+          document.body.classList.add('bg-slate-950');
+        });
+      }
     })();
   </script>
   <style>
