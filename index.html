@@ -22,6 +22,18 @@
       darkMode: 'class',
     }
   </script>
+  <script>
+    // FOUC 방지: 초기 로드 시 다크 모드로 설정 (localStorage 우선)
+    (function() {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const storedTheme = localStorage.getItem('theme');
+      const useDark = storedTheme === 'dark' || (!storedTheme && prefersDark);
+      if (useDark) {
+        document.documentElement.classList.add('dark');
+      }
+      document.body.classList.add('bg-slate-950');
+    })();
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
     body {
@@ -33,7 +45,7 @@
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
   </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+<body class="bg-slate-950 dark:bg-slate-950 transition-colors duration-300">
   <div id="root"></div>
   <script type="module" src="/src/index.tsx"></script>
 </body>
