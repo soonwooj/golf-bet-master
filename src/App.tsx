@@ -262,7 +262,7 @@ const App: React.FC = () => {
 
             {/* 인피드 광고 */}
             <div className="bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-2xl text-white text-center font-black shadow-xl">
-              <a href="https://naver.me/FjmE7dNF" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 transition-colors duration-200 font-extrabold text-base">
+              <a href="https://naver.me/FjmE7dNF" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 w-full py-6 rounded-lg bg-emerald-500 hover:bg-emerald-400 transition-colors duration-200 font-extrabold text-2xl md:text-3xl">
                 🏌️ 스코어만큼 장비도 업그레이드! 골프 거리측정기 보기 →
               </a>
               <p className="mt-2 text-xs text-slate-200 dark:text-slate-400">이 링크는 네이버 쇼핑커넥트 활동의 일환으로 수수료를 지급받을 수 있습니다</p>
