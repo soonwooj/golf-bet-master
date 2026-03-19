@@ -52,7 +52,21 @@
   </style>
 </head>
 <body class="bg-slate-950 dark:bg-slate-950 transition-colors duration-300">
+  <!-- 정적 배너: React 렌더링 전/후에도 항상 표시 -->
+  <div class="mx-auto mb-4 p-4 rounded-xl border-2 border-red-500 bg-emerald-600 text-white text-center max-w-7xl">
+    <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" class="font-black text-lg inline-flex items-center justify-center gap-2">
+      ⛳ 골프용품 최저가 쇼핑 (STATIC TEST BANNER)
+    </a>
+  </div>
+
   <div id="root"></div>
+
+  <noscript>
+    <div class="mx-auto mt-4 p-4 rounded-xl border-2 border-yellow-400 bg-yellow-100 text-black text-center max-w-7xl">
+      JavaScript가 비활성화 되어 있어 앱이 실행되지 않습니다. JS를 활성화해주세요.
+    </div>
+  </noscript>
+
   <script type="module" src="/src/index.tsx"></script>
 </body>
 </html>
