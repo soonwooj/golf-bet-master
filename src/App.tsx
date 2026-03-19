@@ -11,6 +11,7 @@ import LiveHoleEntry from './components/LiveHoleEntry';
 type AppMode = 'PHOTO' | 'LIVE';
 
 const App: React.FC = () => {
+  console.log('App render start');
   const [mode, setMode] = useState<AppMode>('PHOTO');
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentHoleIdx, setCurrentHoleIdx] = useState(0);

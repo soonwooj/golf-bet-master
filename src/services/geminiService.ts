@@ -1,11 +1,30 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
 import { Player } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getGeminiAI = async () => {
+  try {
+    const module = await import('@google/genai');
+    const GoogleGenAI = (module as any).GoogleGenAI;
+    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || '';
+
+    if (!apiKey) {
+      throw new Error('VITE_GOOGLE_API_KEY를 설정해주세요.');
+    }
+
+    return new GoogleGenAI({ apiKey });
+  } catch (error) {
+    console.warn('Gemini AI 초기화 실패:', error);
+    throw new Error('Gemini 서비스가 현재 환경에서 지원되지 않습니다.');
+  }
+};
 
 export const parseScorecardImage = async (base64Image: string): Promise<Player[]> => {
-  const model = "gemini-3-flash-preview";
+  if (typeof window === 'undefined') {
+    throw new Error('서버 환경에서만 이미지 분석이 지원됩니다.');
+  }
+
+  const model = 'gemini-3-flash-preview';
+  const ai = await getGeminiAI();
   
   const response = await ai.models.generateContent({
     model,
