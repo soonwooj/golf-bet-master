@@ -121,10 +121,10 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-24 px-4 md:px-8 max-w-7xl mx-auto transition-colors duration-300 dark:bg-slate-950">
-      {/* 상단 배너 광고 (PC/모바일 공통) */}
-      <div className="bg-amber-100 dark:bg-amber-900/40 rounded-2xl border-4 border-red-500 dark:border-red-400 text-center py-3 mb-4">
-        <a href="https://example.com/top-banner" target="_blank" rel="noreferrer" className="font-black text-emerald-700 dark:text-emerald-300 hover:underline">
-          [광고] 지금 가입하면 100% 보너스! 클릭하여 자세히 보기
+      {/* 상단 배너 광고 */}
+      <div className="bg-emerald-500 dark:bg-emerald-600 rounded-2xl text-center py-3 mb-4 shadow-lg">
+        <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" className="font-black text-white hover:text-emerald-100">
+          ⛳ 오늘 라운드 끝! 다음 라운드를 위한 용품 구경하러 가기 →
         </a>
       </div>
 
@@ -261,7 +261,7 @@ const App: React.FC = () => {
             </div>
 
             {/* 인피드 광고 */}
-            <div className="bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-2xl border-4 border-red-500 dark:border-red-400 text-white text-center font-black shadow-xl">
+            <div className="bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-2xl text-white text-center font-black shadow-xl">
               <a href="https://naver.me/FjmE7dNF" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 transition-colors duration-200 font-extrabold text-base">
                 🏌️ 스코어만큼 장비도 업그레이드! 골프 거리측정기 보기 →
               </a>
@@ -279,7 +279,7 @@ const App: React.FC = () => {
       </main>
 
       {/* 하단 스티키 광고 배너 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 border-t-4 border-red-500 p-3 md:p-4 backdrop-blur-sm shadow-xl">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 border-t border-emerald-600 p-3 md:p-4 backdrop-blur-sm shadow-xl">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
           <span className="text-sm md:text-base font-black text-white">⛳ 골프용품 최저가 쇼핑</span>
           <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" className="text-xs md:text-sm font-black bg-emerald-500 text-white px-3 py-2 rounded-lg hover:bg-emerald-400 transition-colors duration-200">
