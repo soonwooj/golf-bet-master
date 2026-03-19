@@ -260,9 +260,9 @@ const App: React.FC = () => {
             </div>
 
             {/* 인피드 광고 */}
-            <div className="bg-gradient-to-r from-emerald-500 to-emerald-700 dark:from-emerald-600 dark:to-emerald-800 p-4 rounded-2xl border border-emerald-400 dark:border-emerald-600 text-white text-center font-black shadow-lg">
-              <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" className="block hover:text-emerald-200">
-                골프용품 쇼핑하기
+            <div className="bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-2xl border border-emerald-500 dark:border-emerald-600 text-white text-center font-black shadow-xl">
+              <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 transition-colors duration-200 font-extrabold text-base">
+                ⛳ 골프용품 최저가 쇼핑
               </a>
             </div>
           </div>
@@ -277,11 +277,11 @@ const App: React.FC = () => {
       </main>
 
       {/* 하단 스티키 광고 배너 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-3 md:p-4 shadow-xl border-t border-emerald-500">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 border-t border-emerald-600 p-3 md:p-4 backdrop-blur-sm shadow-xl">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
-          <span className="text-sm md:text-base font-black">골프용품 쇼핑하기</span>
-          <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" className="text-xs md:text-sm font-black bg-white text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100">
-            링크로 이동하기
+          <span className="text-sm md:text-base font-black text-white">⛳ 골프용품 최저가 쇼핑</span>
+          <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" className="text-xs md:text-sm font-black bg-emerald-500 text-white px-3 py-2 rounded-lg hover:bg-emerald-400 transition-colors duration-200">
+            지금 바로 확인하기
           </a>
         </div>
       </div>
