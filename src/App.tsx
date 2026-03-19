@@ -122,8 +122,8 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen pb-24 px-4 md:px-8 max-w-7xl mx-auto transition-colors duration-300 dark:bg-slate-950">
       {/* 상단 배너 광고 */}
-      <div className="bg-emerald-500 dark:bg-emerald-600 rounded-2xl text-center py-3 mb-4 shadow-lg">
-        <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" className="font-black text-white hover:text-emerald-100">
+      <div className="bg-emerald-500 dark:bg-emerald-600 rounded-2xl text-center py-6 mb-4 shadow-lg">
+        <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" className="font-black text-white hover:text-emerald-100 text-2xl md:text-3xl">
           ⛳ 오늘 라운드 끝! 다음 라운드를 위한 용품 구경하러 가기 →
         </a>
       </div>
