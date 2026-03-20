@@ -10,6 +10,27 @@ import LiveHoleEntry from './components/LiveHoleEntry';
 
 type AppMode = 'PHOTO' | 'LIVE';
 
+interface SidebarAdProps {
+  title: string;
+  href: string;
+  imageSrc?: string;
+}
+
+const SidebarAd: React.FC<SidebarAdProps> = ({ title, href, imageSrc }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noreferrer"
+    className="w-20 h-96 relative overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 p-3 text-center text-xs font-bold text-stone-600 dark:text-stone-200 hover:shadow-xl transition-all bg-stone-50 dark:bg-stone-900"
+  >
+    {imageSrc ? (
+      <img src={imageSrc} alt={title} className="h-full w-full object-cover rounded-2xl" />
+    ) : (
+      <span className="block mt-2 leading-snug text-[11px]">{title}</span>
+    )}
+  </a>
+);
+
 const App: React.FC = () => {
   console.log('App render start');
   const [mode, setMode] = useState<AppMode>('PHOTO');
@@ -188,10 +209,10 @@ const App: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <aside className="hidden lg:flex lg:col-span-1 items-start justify-center">
-            <a href="https://example.com/left-sidebar" target="_blank" rel="noreferrer" className="w-20 h-96 bg-stone-100 dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 p-3 text-xs font-bold text-center text-stone-600 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700">
-              사이드 광고
-              <br />Left
-            </a>
+            <SidebarAd
+              title="☀️ 자외선 차단 패치 UPF 50+ 골프 필수템 보기 →"
+              href="https://naver.me/FfsGOrAP"
+            />
           </aside>
 
           <div className="lg:col-span-10 space-y-6">
@@ -270,10 +291,10 @@ const App: React.FC = () => {
           </div>
 
           <aside className="hidden lg:flex lg:col-span-1 items-start justify-center">
-            <a href="https://example.com/right-sidebar" target="_blank" rel="noreferrer" className="w-20 h-96 bg-stone-100 dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 p-3 text-xs font-bold text-center text-stone-600 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700">
-              사이드 광고
-              <br />Right
-            </a>
+            <SidebarAd
+              title="🧥 바람막이 하나로 라운드 끝까지! 아디다스 반집업 보기 →"
+              href="https://naver.me/IIDFclKC"
+            />
           </aside>
         </div>
       </main>
