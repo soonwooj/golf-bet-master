@@ -11,22 +11,37 @@ import LiveHoleEntry from './components/LiveHoleEntry';
 type AppMode = 'PHOTO' | 'LIVE';
 
 interface SidebarAdProps {
-  title: string;
+  icon: string;
+  lines: string[];
   href: string;
   imageSrc?: string;
 }
 
-const SidebarAd: React.FC<SidebarAdProps> = ({ title, href, imageSrc }) => (
+const SidebarAd: React.FC<SidebarAdProps> = ({ icon, lines, href, imageSrc }) => (
   <a
     href={href}
     target="_blank"
     rel="noreferrer"
-    className="w-20 h-96 relative overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 p-3 text-center text-xs font-bold text-stone-600 dark:text-stone-200 hover:shadow-xl transition-all bg-stone-50 dark:bg-stone-900"
+    className="w-20 h-96 flex flex-col items-center justify-between rounded-2xl border border-stone-200 dark:border-stone-700 p-3 text-center text-xs font-bold text-stone-700 dark:text-stone-200 hover:shadow-xl transition-all bg-stone-50 dark:bg-stone-900"
   >
     {imageSrc ? (
-      <img src={imageSrc} alt={title} className="h-full w-full object-cover rounded-2xl" />
+      <img src={imageSrc} alt={lines.join(' ')} className="h-full w-full object-cover rounded-2xl" />
     ) : (
-      <span className="block mt-2 leading-snug text-[11px]">{title}</span>
+      <>
+        <div className="text-3xl mb-2">{icon}</div>
+        <div className="space-y-1">
+          {lines.map((line, idx) => (
+            <div key={idx} className="text-xs font-black leading-tight">
+              {line}
+            </div>
+          ))}
+        </div>
+        <div className="mt-auto w-full">
+          <span className="inline-block w-full rounded-lg bg-emerald-500 px-2 py-1 text-[10px] font-black text-white hover:bg-emerald-400 transition-colors">
+            구매하기 →
+          </span>
+        </div>
+      </>
     )}
   </a>
 );
@@ -210,7 +225,8 @@ const App: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <aside className="hidden lg:flex lg:col-span-1 items-start justify-center">
             <SidebarAd
-              title="☀️ 자외선 차단 패치 UPF 50+ 골프 필수템 보기 →"
+              icon="☀️"
+              lines={["자외선", "차단 패치", "UPF 50+"]}
               href="https://naver.me/FfsGOrAP"
             />
           </aside>
@@ -292,7 +308,8 @@ const App: React.FC = () => {
 
           <aside className="hidden lg:flex lg:col-span-1 items-start justify-center">
             <SidebarAd
-              title="🧥 바람막이 하나로 라운드 끝까지! 아디다스 반집업 보기 →"
+              icon="🧥"
+              lines={["아디다스", "바람막이", "라운드 필수"]}
               href="https://naver.me/IIDFclKC"
             />
           </aside>
