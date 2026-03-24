@@ -11,21 +11,38 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
   
   // .env.local의 VITE_KAKAO_JS_KEY를 정확히 읽어옵니다.
   const KAKAO_KEY = import.meta.env.VITE_KAKAO_JS_KEY;
+  console.log('Kakao Key from env:', KAKAO_KEY);
 
   useEffect(() => {
+    console.log('useEffect triggered, Kakao Key:', KAKAO_KEY);
+    
     const initKakao = () => {
       const kakao = (window as any).Kakao;
-      if (kakao && KAKAO_KEY && !kakao.isInitialized()) {
-        try {
-          kakao.init(KAKAO_KEY);
-          console.log('Kakao SDK 초기화 성공');
-        } catch (e) {
-          console.error('Kakao SDK 초기화 실패:', e);
+      console.log('Kakao object available:', !!kakao);
+      console.log('Kakao object:', kakao);
+      
+      if (kakao && KAKAO_KEY) {
+        console.log('Kakao isInitialized before init:', kakao.isInitialized ? kakao.isInitialized() : 'isInitialized method not found');
+        
+        if (!kakao.isInitialized()) {
+          try {
+            console.log('Attempting to init Kakao with key:', KAKAO_KEY);
+            kakao.init(KAKAO_KEY);
+            console.log('Kakao SDK 초기화 성공');
+            console.log('Kakao isInitialized after init:', kakao.isInitialized());
+          } catch (e) {
+            console.error('Kakao SDK 초기화 실패:', e);
+          }
+        } else {
+          console.log('Kakao already initialized');
         }
+      } else {
+        console.error('Kakao object or key missing:', { kakao: !!kakao, key: !!KAKAO_KEY });
       }
     };
     
-    const timer = setTimeout(initKakao, 500);
+    // SDK 로드 대기 시간을 늘리고 더 자주 체크
+    const timer = setTimeout(initKakao, 1000);
     return () => clearTimeout(timer);
   }, [KAKAO_KEY]);
 
@@ -50,17 +67,40 @@ const PayoutDisplay: React.FC<Props> = ({ payouts, totals }) => {
   const shareUrl = window.location.href;
 
   const handleKakaoShare = () => {
+    console.log('handleKakaoShare called');
     const kakao = (window as any).Kakao;
-    if (kakao && kakao.isInitialized()) {
-      kakao.Share.sendDefault({
-        objectType: 'text',
-        text: shareText,
-        link: {
-          mobileWebUrl: shareUrl,
-          webUrl: shareUrl,
-        },
-      });
+    console.log('Kakao object:', kakao);
+    
+    if (kakao) {
+      console.log('Kakao.isInitialized method:', typeof kakao.isInitialized);
+      const isInitialized = kakao.isInitialized ? kakao.isInitialized() : false;
+      console.log('Kakao isInitialized result:', isInitialized);
+      
+      if (isInitialized) {
+        console.log('Attempting Kakao share with text:', shareText);
+        try {
+          kakao.Share.sendDefault({
+            objectType: 'text',
+            text: shareText,
+            link: {
+              mobileWebUrl: shareUrl,
+              webUrl: shareUrl,
+            },
+          });
+          console.log('Kakao share sent successfully');
+        } catch (error) {
+          console.error('Kakao share failed with error:', error);
+          alert('카카오 공유 중 오류가 발생했습니다. 클립보드로 복사합니다.');
+          handleCopyToClipboard();
+        }
+      } else {
+        console.error('Kakao not initialized, falling back to clipboard');
+        alert('카카오 SDK가 초기화되지 않았습니다. 클립보드로 복사합니다.');
+        handleCopyToClipboard();
+      }
     } else {
+      console.error('Kakao object not found, falling back to clipboard');
+      alert('카카오 SDK를 찾을 수 없습니다. 클립보드로 복사합니다.');
       handleCopyToClipboard();
     }
     setShowShareMenu(false);
