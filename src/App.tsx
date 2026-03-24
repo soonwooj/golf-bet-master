@@ -191,64 +191,15 @@ const App: React.FC = () => {
 
       {/* App intro text */}
       <section className="border-l-4 border-emerald-500 pl-4 mb-6">
-        <p className="font-bold text-lg text-slate-100">규칙을 설정하고 라운드 방식을 선택하세요.</p>
-        <p className="mt-2 text-sm text-slate-200">
+        <p className="font-bold text-lg text-slate-800 dark:text-slate-100">규칙을 설정하고 라운드 방식을 선택하세요.</p>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
           AI가 타당·버디·더블을 자동으로 계산해드려요. 실시간으로 기록하거나, 끝난 후 사진으로 한번에 정산할 수 있어요.
         </p>
       </section>
 
-      {/* Rule setting panel */}
-      <section className="border-2 border-emerald-500 rounded-3xl p-6 mb-6 bg-white dark:bg-slate-900 shadow-sm">
-        <h2 className="font-extrabold text-lg text-slate-700 dark:text-slate-200 mb-4">① 내기 규칙 설정</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <label className="space-y-1 text-sm text-slate-100 dark:text-slate-100">
-            <span>타당 금액</span>
-            <input
-              type="number"
-              value={settings.perStrokeAmount}
-              onChange={(e) => setSettings(prev => ({ ...prev, perStrokeAmount: Number(e.target.value) || 0 }))}
-              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-            />
-          </label>
-          <label className="space-y-1 text-sm text-slate-100 dark:text-slate-100">
-            <span>버디 보너스</span>
-            <input
-              type="number"
-              value={settings.birdieAmount}
-              onChange={(e) => setSettings(prev => ({ ...prev, birdieAmount: Number(e.target.value) || 0 }))}
-              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-            />
-          </label>
-        </div>
-        <div className="flex flex-col md:flex-row md:items-center gap-3">
-          <label className="inline-flex items-center gap-2 text-sm text-slate-100 dark:text-slate-100">
-            <input
-              type="checkbox"
-              checked={settings.doubleOnTripleBogey}
-              onChange={(e) => setSettings(prev => ({ ...prev, doubleOnTripleBogey: e.target.checked }))}
-              className="form-checkbox"
-            />
-            트리플 보기 시 더블 적용
-          </label>
-          <label className="inline-flex items-center gap-2 text-sm text-slate-100 dark:text-slate-100">
-            <input
-              type="checkbox"
-              checked={settings.doubleOnTieCount >= 3}
-              onChange={(e) => setSettings(prev => ({ ...prev, doubleOnTieCount: e.target.checked ? 3 : 0 }))}
-              className="form-checkbox"
-            />
-            무승부 3회 시 더블
-          </label>
-          <label className="inline-flex items-center gap-2 text-sm text-slate-100 dark:text-slate-100">
-            <input
-              type="checkbox"
-              checked={settings.doubleNextOnAllTie}
-              onChange={(e) => setSettings(prev => ({ ...prev, doubleNextOnAllTie: e.target.checked }))}
-              className="form-checkbox"
-            />
-            무승부 시 다음 홀 더블
-          </label>
-        </div>
+      {/* Rule setting component (original) */}
+      <section className="mb-6">
+        <BetSettingsForm settings={settings} setSettings={setSettings} />
       </section>
 
       {/* Mode selection buttons */}
@@ -265,14 +216,6 @@ const App: React.FC = () => {
         >
           📷 사진 정산
         </button>
-      </section>
-
-      {/* App intro text */}
-      <section className="border-l-4 border-emerald-500 pl-4 mb-6">
-        <p className="font-bold text-lg text-slate-800 dark:text-slate-100">규칙을 설정하고 라운드 방식을 선택하세요.</p>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          AI가 타당·버디·더블을 자동으로 계산해드려요. 실시간으로 기록하거나, 끝난 후 사진으로 한번에 정산할 수 있어요.
-        </p>
       </section>
 
       {/* 인피드 광고 */}
@@ -313,7 +256,6 @@ const App: React.FC = () => {
           <div className="lg:col-span-10 space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-4 space-y-6">
-                <BetSettingsForm settings={settings} setSettings={setSettings} />
                 {results.totals.length > 0 && (
                   <div className="bg-slate-900 dark:bg-slate-900 text-white p-6 rounded-3xl shadow-xl border-t-4 border-emerald-500">
                     <h3 className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-4 flex items-center justify-between">
