@@ -158,9 +158,9 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen pb-24 px-4 md:px-8 max-w-7xl mx-auto transition-colors duration-300 dark:bg-slate-950">
       {/* 상단 배너 광고 */}
-      <div className="bg-emerald-500 dark:bg-emerald-600 rounded-2xl text-center py-6 mb-4 shadow-lg">
-        <a href="https://link.coupang.com/a/d8AKQ3" target="_blank" rel="noreferrer" className="inline-block">
-          <img src="https://ads-partners.coupang.com/banners/974277?subId=&traceId=V0-301-efafde73812c2264-I974277&w=728&h=90" alt="" />
+      <div className="w-full p-0 m-0">
+        <a href="https://link.coupang.com/a/d8AKQ3" target="_blank" rel="noreferrer" className="block w-full">
+          <img src="https://ads-partners.coupang.com/banners/974277?subId=&traceId=V0-301-efafde73812c2264-I974277&w=728&h=90" alt="" className="w-full h-auto block" />
         </a>
       </div>
 
