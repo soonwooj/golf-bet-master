@@ -48,7 +48,7 @@ const SidebarAd: React.FC<SidebarAdProps> = ({ icon, lines, href, imageSrc }) =>
 
 const App: React.FC = () => {
   console.log('App render start');
-  const [mode, setMode] = useState<AppMode>('PHOTO');
+  const [mode, setMode] = useState<AppMode>('LIVE');
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentHoleIdx, setCurrentHoleIdx] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -78,6 +78,23 @@ const App: React.FC = () => {
       localStorage.setItem('theme', 'light');
     }
   }, [isDark]);
+
+  useEffect(() => {
+    // 앱 초기 로드 시 실시간 기록 모드로 설정
+    const defaultPars = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5];
+    const initialPlayers: Player[] = ['동반자 1', '동반자 2', '동반자 3', '동반자 4'].map((name, i) => ({
+      id: `live-${i}`,
+      name,
+      handicap: 0,
+      scores: defaultPars.map((par, hIdx) => ({
+        holeNumber: hIdx + 1,
+        par,
+        score: par
+      }))
+    }));
+    setPlayers(initialPlayers);
+    setCurrentHoleIdx(0);
+  }, []);
 
   const initLiveRound = () => {
     const defaultPars = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5];
@@ -206,13 +223,17 @@ const App: React.FC = () => {
       <section className="flex gap-3 mb-6">
         <button
           onClick={initLiveRound}
-          className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition"
+          className={`flex-1 py-3 rounded-xl text-white font-bold transition ${
+            mode === 'LIVE' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-800 hover:bg-slate-700'
+          }`}
         >
           ⛳ 실시간 기록
         </button>
         <button
           onClick={() => setMode('PHOTO')}
-          className="flex-1 py-3 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition"
+          className={`flex-1 py-3 rounded-xl text-white font-bold transition ${
+            mode === 'PHOTO' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-800 hover:bg-slate-700'
+          }`}
         >
           📷 사진 정산
         </button>
