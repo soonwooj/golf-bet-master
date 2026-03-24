@@ -189,20 +189,91 @@ const App: React.FC = () => {
         <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Golf Bet Pro</p>
       </header>
 
-      <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-8 max-w-sm mx-auto">
-        <button 
-          onClick={() => setMode('PHOTO')}
-          className={`flex-1 py-3 rounded-xl text-xs font-black transition-all ${mode === 'PHOTO' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
-        >
-          사진 분석 모드
-        </button>
-        <button 
+      {/* Rule setting panel */}
+      <section className="border-2 border-emerald-500 rounded-3xl p-6 mb-6 bg-white dark:bg-slate-900 shadow-sm">
+        <h2 className="font-extrabold text-lg text-slate-700 dark:text-slate-200 mb-4">① 내기 규칙 설정</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <label className="space-y-1 text-sm">
+            <span>타당 금액</span>
+            <input
+              type="number"
+              value={settings.perStrokeAmount}
+              onChange={(e) => setSettings(prev => ({ ...prev, perStrokeAmount: Number(e.target.value) || 0 }))}
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="space-y-1 text-sm">
+            <span>버디 보너스</span>
+            <input
+              type="number"
+              value={settings.birdieAmount}
+              onChange={(e) => setSettings(prev => ({ ...prev, birdieAmount: Number(e.target.value) || 0 }))}
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+            />
+          </label>
+        </div>
+        <div className="flex flex-col md:flex-row md:items-center gap-3">
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={settings.doubleOnTripleBogey}
+              onChange={(e) => setSettings(prev => ({ ...prev, doubleOnTripleBogey: e.target.checked }))}
+              className="form-checkbox"
+            />
+            트리플 보기 시 더블 적용
+          </label>
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={settings.doubleOnTieCount >= 3}
+              onChange={(e) => setSettings(prev => ({ ...prev, doubleOnTieCount: e.target.checked ? 3 : 0 }))}
+              className="form-checkbox"
+            />
+            무승부 3회 시 더블
+          </label>
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={settings.doubleNextOnAllTie}
+              onChange={(e) => setSettings(prev => ({ ...prev, doubleNextOnAllTie: e.target.checked }))}
+              className="form-checkbox"
+            />
+            무승부 시 다음 홀 더블
+          </label>
+        </div>
+      </section>
+
+      {/* Mode selection buttons */}
+      <section className="flex gap-3 mb-6">
+        <button
           onClick={initLiveRound}
-          className={`flex-1 py-3 rounded-xl text-xs font-black transition-all ${mode === 'LIVE' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+          className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition"
         >
-          실시간 기록 모드
+          ⛳ 실시간 기록
         </button>
-      </div>
+        <button
+          onClick={() => setMode('PHOTO')}
+          className="flex-1 py-3 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition"
+        >
+          📷 사진 정산
+        </button>
+      </section>
+
+      {/* App intro text */}
+      <section className="border-l-4 border-emerald-500 pl-4 mb-6">
+        <p className="font-bold text-lg text-slate-800 dark:text-slate-100">규칙을 설정하고 라운드 방식을 선택하세요.</p>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          AI가 타당·버디·더블을 자동으로 계산해드려요. 실시간으로 기록하거나, 끝난 후 사진으로 한번에 정산할 수 있어요.
+        </p>
+      </section>
+
+      {/* 인피드 광고 */}
+      <section className="bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-2xl text-white text-center font-black shadow-xl mb-6">
+        <a href="https://naver.me/FjmE7dNF" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 w-full py-6 rounded-lg bg-emerald-500 hover:bg-emerald-400 transition-colors duration-200 font-extrabold text-2xl md:text-3xl">
+          🏌️ 스코어만큼 장비도 업그레이드! 골프 거리측정기 보기 →
+        </a>
+        <p className="mt-2 text-xs text-slate-200">이 링크는 네이버 쇼핑커넥트 활동의 일환으로 수수료를 지급받을 수 있습니다</p>
+      </section>
 
       <main className="space-y-6">
         {mode === 'PHOTO' && players.length === 0 && (
@@ -297,13 +368,7 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* 인피드 광고 */}
-            <div className="bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-2xl text-white text-center font-black shadow-xl">
-              <a href="https://naver.me/FjmE7dNF" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 w-full py-6 rounded-lg bg-emerald-500 hover:bg-emerald-400 transition-colors duration-200 font-extrabold text-2xl md:text-3xl">
-                🏌️ 스코어만큼 장비도 업그레이드! 골프 거리측정기 보기 →
-              </a>
-              <p className="mt-2 text-xs text-slate-200 dark:text-slate-400">이 링크는 네이버 쇼핑커넥트 활동의 일환으로 수수료를 지급받을 수 있습니다</p>
-            </div>
+
           </div>
 
           <aside className="hidden lg:flex lg:col-span-1 items-start justify-center">
