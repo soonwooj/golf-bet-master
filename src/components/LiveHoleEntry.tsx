@@ -111,6 +111,7 @@ const LiveHoleEntry: React.FC<Props> = ({
                   type="text"
                   value={player.name}
                   onChange={(e) => onUpdateName(player.id, e.target.value)}
+                  onFocus={(e) => e.target.select()}
                   className="bg-transparent font-black text-slate-800 dark:text-slate-100 text-sm outline-none w-24 border-none focus:ring-0"
                 />
                 <div className="flex items-center gap-1.5 px-0.5">
