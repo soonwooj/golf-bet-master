@@ -11,11 +11,44 @@ const BetSettingsForm: React.FC<Props> = ({ settings, setSettings }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
-    
+
     setSettings({
       ...settings,
       [name]: type === 'checkbox' ? checked : Number(value)
     });
+  };
+
+  const handleNumberInputChange = (field: 'perStrokeAmount' | 'birdieAmount') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+
+    if (/^\d*$/.test(raw)) {
+      setSettings({
+        ...settings,
+        [field]: raw === '' ? 0 : Number(raw)
+      });
+    }
+  };
+
+  const handleNumberInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const allowedControlKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
+    if (allowedControlKeys.includes(e.key)) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!/^\d$/.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const handleNumberInputBlur = (field: 'perStrokeAmount' | 'birdieAmount') => (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.target.value === '') {
+      setSettings({
+        ...settings,
+        [field]: 0
+      });
+    }
+  };
+
+  const handleNumberInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select();
   };
 
   return (
@@ -35,11 +68,33 @@ const BetSettingsForm: React.FC<Props> = ({ settings, setSettings }) => {
           <div className="grid grid-cols-1 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">타당 금액</label>
-              <input type="number" name="perStrokeAmount" value={settings.perStrokeAmount} onChange={handleChange} className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm transition-colors" />
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                name="perStrokeAmount"
+                value={settings.perStrokeAmount === 0 ? '' : settings.perStrokeAmount}
+                onChange={handleNumberInputChange('perStrokeAmount')}
+                onKeyDown={handleNumberInputKeyDown}
+                onBlur={handleNumberInputBlur('perStrokeAmount')}
+                onFocus={handleNumberInputFocus}
+                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm transition-colors appearance-none [::-webkit-outer-spin-button]:appearance-none [::-webkit-inner-spin-button]:appearance-none"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">버디 보너스</label>
-              <input type="number" name="birdieAmount" value={settings.birdieAmount} onChange={handleChange} className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm transition-colors" />
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                name="birdieAmount"
+                value={settings.birdieAmount === 0 ? '' : settings.birdieAmount}
+                onChange={handleNumberInputChange('birdieAmount')}
+                onKeyDown={handleNumberInputKeyDown}
+                onBlur={handleNumberInputBlur('birdieAmount')}
+                onFocus={handleNumberInputFocus}
+                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm transition-colors appearance-none [::-webkit-outer-spin-button]:appearance-none [::-webkit-inner-spin-button]:appearance-none"
+              />
             </div>
           </div>
         </div>
