@@ -21,7 +21,7 @@ const SidebarAd: React.FC<SidebarAdProps> = ({ icon, lines, href, imageSrc }) =>
   <a
     href={href}
     target="_blank"
-    rel="noreferrer"
+    rel="noopener noreferrer"
     className="w-20 h-96 flex flex-col items-center justify-between rounded-2xl border border-stone-200 dark:border-stone-700 p-3 text-center text-xs font-bold text-stone-700 dark:text-stone-200 hover:shadow-xl transition-all bg-stone-50 dark:bg-stone-900"
   >
     {imageSrc ? (
@@ -159,7 +159,7 @@ const App: React.FC = () => {
     <div className="min-h-screen pb-24 px-4 md:px-8 max-w-7xl mx-auto transition-colors duration-300 dark:bg-slate-950">
       {/* 상단 배너 광고 */}
       <div className="w-full p-0 m-0">
-        <a href="https://link.coupang.com/a/d8AKQ3" target="_blank" rel="noreferrer" className="block w-full">
+        <a href="https://link.coupang.com/a/d8AKQ3" target="_blank" rel="noopener noreferrer" className="block w-full">
           <img src="https://ads-partners.coupang.com/banners/974277?subId=&traceId=V0-301-efafde73812c2264-I974277&w=728&h=90" alt="" className="w-full h-auto block" />
         </a>
       </div>
@@ -299,7 +299,7 @@ const App: React.FC = () => {
 
             {/* 인피드 광고 */}
             <div className="bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-2xl text-white text-center font-black shadow-xl">
-              <a href="https://naver.me/FjmE7dNF" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 w-full py-6 rounded-lg bg-emerald-500 hover:bg-emerald-400 transition-colors duration-200 font-extrabold text-2xl md:text-3xl">
+              <a href="https://naver.me/FjmE7dNF" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 w-full py-6 rounded-lg bg-emerald-500 hover:bg-emerald-400 transition-colors duration-200 font-extrabold text-2xl md:text-3xl">
                 🏌️ 스코어만큼 장비도 업그레이드! 골프 거리측정기 보기 →
               </a>
               <p className="mt-2 text-xs text-slate-200 dark:text-slate-400">이 링크는 네이버 쇼핑커넥트 활동의 일환으로 수수료를 지급받을 수 있습니다</p>
@@ -320,7 +320,7 @@ const App: React.FC = () => {
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 border-t border-emerald-600 p-3 md:p-4 backdrop-blur-sm shadow-xl">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
           <span className="text-sm md:text-base font-black text-white">⛳ 골프용품 최저가 쇼핑</span>
-          <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noreferrer" className="text-xs md:text-sm font-black bg-emerald-500 text-white px-3 py-2 rounded-lg hover:bg-emerald-400 transition-colors duration-200">
+          <a href="https://www.dealpang.com/?linkD=96LAY5B7a" target="_blank" rel="noopener noreferrer" className="text-xs md:text-sm font-black bg-emerald-500 text-white px-3 py-2 rounded-lg hover:bg-emerald-400 transition-colors duration-200">
             지금 바로 확인하기
           </a>
         </div>
