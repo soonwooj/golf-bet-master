@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Player, BetSettings, PayoutSummary, PlayerTotal } from './types';
-import { parseScorecardImage } from './services/geminiService';
+import { parseScorecardImage, parseTwoScorecardImages } from './services/geminiService';
 import { calculateGolfBets } from './utils/calculator';
 import BetSettingsForm from './components/BetSettingsForm';
 import ScoreEditor from './components/ScoreEditor';
 import PayoutDisplay from './components/PayoutDisplay';
 import LiveHoleEntry from './components/LiveHoleEntry';
+import PhotoUploadForm from './components/PhotoUploadForm';
 
 type AppMode = 'PHOTO' | 'LIVE';
 
@@ -119,9 +120,7 @@ const App: React.FC = () => {
     return calculateGolfBets(players, settings);
   }, [players, settings]);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleSingleUpload = async (file: File) => {
     setIsProcessing(true);
     setError(null);
     try {
@@ -143,6 +142,58 @@ const App: React.FC = () => {
       setError("파일 오류 발생");
       setIsProcessing(false);
     }
+  };
+
+  const handleDualUpload = async (frontFile: File, backFile: File) => {
+    setIsProcessing(true);
+    setError(null);
+    try {
+      const frontReader = new FileReader();
+      const backReader = new FileReader();
+      let frontBase64 = '';
+      let backBase64 = '';
+      let loadedCount = 0;
+
+      const processImages = async () => {
+        try {
+          const parsedPlayers = await parseTwoScorecardImages(frontBase64, backBase64);
+          setPlayers(parsedPlayers.map(p => ({ ...p, handicap: 0 })));
+          setMode('PHOTO');
+        } catch (err: any) {
+          setError("분석 실패. 선명한 사진을 업로드해 주세요.");
+        } finally {
+          setIsProcessing(false);
+        }
+      };
+
+      frontReader.onload = async () => {
+        frontBase64 = frontReader.result as string;
+        loadedCount++;
+        if (loadedCount === 2) {
+          await processImages();
+        }
+      };
+
+      backReader.onload = async () => {
+        backBase64 = backReader.result as string;
+        loadedCount++;
+        if (loadedCount === 2) {
+          await processImages();
+        }
+      };
+
+      frontReader.readAsDataURL(frontFile);
+      backReader.readAsDataURL(backFile);
+    } catch (err) {
+      setError("파일 오류 발생");
+      setIsProcessing(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    handleSingleUpload(file);
   };
 
   const updatePlayerScore = (playerId: string, holeIdx: number, newScore: number) => {
@@ -249,20 +300,12 @@ const App: React.FC = () => {
 
       <main className="space-y-6">
         {mode === 'PHOTO' && players.length === 0 && (
-          <div className="bg-white dark:bg-slate-900 p-12 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-center text-center">
-            <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 group cursor-pointer relative overflow-hidden">
-              <div className="absolute inset-0 bg-emerald-500 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-slate-400 group-hover:text-emerald-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <input type="file" accept="image/*" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2">스코어카드 사진 분석</h3>
-            <p className="text-slate-400 dark:text-slate-500 text-sm max-w-xs mx-auto italic">라운딩이 끝난 후 스코어보드를 촬영하면 AI가 자동으로 정산합니다.</p>
-            {isProcessing && <div className="mt-6 flex items-center gap-2 text-emerald-600 font-bold animate-pulse">AI가 데이터를 추출하고 있습니다...</div>}
-            {error && <div className="mt-4 text-rose-500 text-sm font-bold">{error}</div>}
-          </div>
+          <PhotoUploadForm
+            isProcessing={isProcessing}
+            error={error}
+            onUploadSingle={handleSingleUpload}
+            onUploadDouble={handleDualUpload}
+          />
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -316,13 +359,15 @@ const App: React.FC = () => {
                       <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 mb-6">
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">스코어카드 분석 완료</h3>
-                          <label className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center gap-2">
+                          <button
+                            onClick={() => setPlayers([])}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center gap-2"
+                          >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                             </svg>
-                            사진 업로드
-                            <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-                          </label>
+                            다시 업로드
+                          </button>
                         </div>
                       </div>
                       <ScoreEditor 
