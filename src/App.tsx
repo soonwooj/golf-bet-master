@@ -210,7 +210,7 @@ const App: React.FC = () => {
   const updateHolePar = (holeIdx: number, newPar: number) => {
     setPlayers(prev => prev.map(p => {
       const newScores = [...p.scores];
-      newScores[holeIdx] = { ...newScores[holeIdx], par: newPar };
+      newScores[holeIdx] = { ...newScores[holeIdx], par: newPar, score: 0 };
       return { ...p, scores: newScores };
     }));
   };
