@@ -130,7 +130,8 @@ const App: React.FC = () => {
         try {
           const parsedPlayers = await parseScorecardImage(base64);
           setPlayers(parsedPlayers.map(p => ({ ...p, handicap: 0 })));
-          setMode('PHOTO');
+          setCurrentHoleIdx(0);
+          setMode('LIVE');
         } catch (err: any) {
           setError("분석 실패. 선명한 사진을 업로드해 주세요.");
         } finally {
@@ -158,7 +159,8 @@ const App: React.FC = () => {
         try {
           const parsedPlayers = await parseTwoScorecardImages(frontBase64, backBase64);
           setPlayers(parsedPlayers.map(p => ({ ...p, handicap: 0 })));
-          setMode('PHOTO');
+          setCurrentHoleIdx(0);
+          setMode('LIVE');
         } catch (err: any) {
           setError("분석 실패. 선명한 사진을 업로드해 주세요.");
         } finally {
