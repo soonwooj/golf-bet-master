@@ -346,12 +346,12 @@ const App: React.FC = () => {
                 {mode === 'LIVE' ? (
                   <LiveHoleEntry 
                     players={players}
+                    totals={results.totals}
                     currentHoleIdx={currentHoleIdx}
                     settings={settings}
                     onUpdateScore={updatePlayerScore}
                     onUpdatePar={updateHolePar}
                     onUpdateName={updatePlayerName}
-                    onUpdateHandicap={updatePlayerHandicap}
                     onNextHole={() => setCurrentHoleIdx(h => Math.min(17, h + 1))}
                     onPrevHole={() => setCurrentHoleIdx(h => Math.max(0, h - 1))}
                   />

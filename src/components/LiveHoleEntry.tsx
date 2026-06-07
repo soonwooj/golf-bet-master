@@ -1,27 +1,26 @@
 import React, { useMemo } from 'react';
-import { Player, BetSettings } from '../types';
-import { calculateSingleHole } from '../utils/holeCalculator';
+import { Player, BetSettings, PlayerTotal } from '../types';
 
 interface Props {
   players: Player[];
+  totals: PlayerTotal[];
   currentHoleIdx: number;
   settings: BetSettings;
   onUpdateScore: (playerId: string, holeIdx: number, newScore: number) => void;
   onUpdatePar: (holeIdx: number, newPar: number) => void;
   onUpdateName: (playerId: string, newName: string) => void;
-  onUpdateHandicap: (playerId: string, handicap: number) => void;
   onNextHole: () => void;
   onPrevHole: () => void;
 }
 
 const LiveHoleEntry: React.FC<Props> = ({ 
   players = [], 
+  totals = [],
   currentHoleIdx = 0,
   settings,
   onUpdateScore, 
   onUpdatePar, 
   onUpdateName, 
-  onUpdateHandicap,
   onNextHole, 
   onPrevHole 
 }) => {
@@ -50,9 +49,88 @@ const LiveHoleEntry: React.FC<Props> = ({
   const hasTieTrigger = Object.values(scoreCounts).some(c => c >= 3);
   const isDouble = hasTripleTrigger || hasTieTrigger;
 
-  // 현재 홀 정산 계산
+  // 현재 홀 정산 계산 — 각 플레이어의 순수(넷) 밸런스 계산 후 최소 송금으로 변환
   const currentHolePayouts = useMemo(() => {
-    return calculateSingleHole(players, currentHoleIdx, settings, isDouble);
+    // 모든 플레이어가 점수를 입력했는지 확인
+    const playersWithScore = players.filter(p => p.scores[currentHoleIdx] && p.scores[currentHoleIdx].score > 0);
+    if (playersWithScore.length !== players.length) return [];
+
+    const holeData = players.map(p => {
+      const hole = p.scores[currentHoleIdx];
+      const handicapDeduction = Math.floor(p.handicap / 18) + (currentHoleIdx < (p.handicap % 18) ? 1 : 0);
+      return {
+        id: p.id,
+        name: p.name,
+        rawScore: hole.score,
+        appliedScore: hole.score - handicapDeduction,
+        par: hole.par,
+        isBirdie: hole.score < hole.par,
+        isEagle: hole.score <= hole.par - 2
+      };
+    });
+
+    const multiplier = isDouble ? 2 : 1;
+    const holeStake = settings.perStrokeAmount * multiplier;
+
+    const netBalances: Record<string, number> = {};
+    players.forEach(p => (netBalances[p.name] = 0));
+
+    // pairwise stroke comparisons
+    for (let i = 0; i < holeData.length; i++) {
+      for (let j = i + 1; j < holeData.length; j++) {
+        const p1 = holeData[i];
+        const p2 = holeData[j];
+        const diff = p1.appliedScore - p2.appliedScore;
+        if (diff !== 0) {
+          const amount = Math.abs(diff) * holeStake;
+          if (diff > 0) {
+            netBalances[p1.name] -= amount;
+            netBalances[p2.name] += amount;
+          } else {
+            netBalances[p1.name] += amount;
+            netBalances[p2.name] -= amount;
+          }
+        }
+      }
+    }
+
+    // birdie/eagle bonuses
+    holeData.forEach(d => {
+      if (d.isBirdie) {
+        const bonus = d.isEagle ? settings.birdieAmount * 2 : settings.birdieAmount;
+        if (bonus > 0) {
+          holeData.forEach(other => {
+            if (other.id !== d.id) {
+              netBalances[other.name] -= bonus;
+              netBalances[d.name] += bonus;
+            }
+          });
+        }
+      }
+    });
+
+    // 최소 송금 계산 (calculator.ts와 동일한 알고리즘)
+    const totals: { name: string; netAmount: number }[] = Object.entries(netBalances).map(([name, netAmount]) => ({ name, netAmount }));
+    const debtors = totals.filter(t => t.netAmount < 0).map(d => ({ ...d, netAmount: Math.abs(d.netAmount) })).sort((a, b) => a.netAmount - b.netAmount);
+    const creditors = totals.filter(t => t.netAmount > 0).sort((a, b) => b.netAmount - a.netAmount);
+
+    const payouts: { from: string; to: string; amount: number; reason?: string }[] = [];
+    let dIdx = 0;
+    let cIdx = 0;
+    while (dIdx < debtors.length && cIdx < creditors.length) {
+      const debt = debtors[dIdx];
+      const credit = creditors[cIdx];
+      const amount = Math.min(debt.netAmount, credit.netAmount);
+      if (amount > 0) {
+        payouts.push({ from: debt.name, to: credit.name, amount: Math.round(amount) });
+      }
+      debt.netAmount -= amount;
+      credit.netAmount -= amount;
+      if (debt.netAmount <= 0) dIdx++;
+      if (credit.netAmount <= 0) cIdx++;
+    }
+
+    return payouts;
   }, [players, currentHoleIdx, settings, isDouble]);
 
   return (
@@ -105,27 +183,20 @@ const LiveHoleEntry: React.FC<Props> = ({
           else if (scoreDiff > 0) scoreColor = 'text-blue-500'; // 오버파 (파랑)
 
           return (
-            <div key={player.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/40 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 group hover:border-emerald-200 transition-all duration-300">
-              <div className="flex flex-col">
+            <div key={player.id} className="flex items-center bg-slate-50 dark:bg-slate-800/40 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 group hover:border-emerald-200 transition-all duration-300">
+              {/* Left: fixed name column */}
+              <div className="w-36 flex items-center">
                 <input
                   type="text"
                   value={player.name}
                   onChange={(e) => onUpdateName(player.id, e.target.value)}
                   onFocus={(e) => e.target.select()}
-                  className="bg-transparent font-black text-slate-800 dark:text-slate-100 text-sm outline-none w-24 border-none focus:ring-0"
+                  className="bg-transparent font-black text-slate-800 dark:text-slate-100 text-sm outline-none w-full border-none focus:ring-0"
                 />
-                <div className="flex items-center gap-1.5 px-0.5">
-                  <span className="text-[9px] text-slate-400 font-black uppercase">HDCP</span>
-                  <input
-                    type="number"
-                    value={player.handicap}
-                    onChange={(e) => onUpdateHandicap(player.id, parseInt(e.target.value) || 0)}
-                    className="w-10 text-[10px] bg-white dark:bg-slate-700 rounded-lg text-center font-black outline-none border-none shadow-sm"
-                  />
-                </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              {/* Center: - / 누적손익 / + */}
+              <div className="flex-1 flex items-center justify-center gap-4">
                 <button 
                   type="button"
                   onClick={() => {
@@ -140,10 +211,11 @@ const LiveHoleEntry: React.FC<Props> = ({
                     <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                   </svg>
                 </button>
-                
-                <div className="w-16 text-center">
-                  <div className={`text-3xl font-black tracking-tighter transition-all ${scoreColor}`}>
-                    {scoreDiff === null ? '0' : (scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff === 0 ? '0' : scoreDiff)}
+
+                <div className="text-center">
+                  <div className="text-sm text-slate-400 font-black uppercase">누적손익</div>
+                  <div className={`text-2xl font-black mt-1 ${ (totals.find(t => t.name === player.name)?.netAmount || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {((totals.find(t => t.name === player.name)?.netAmount || 0) > 0 ? '+' : '') + (totals.find(t => t.name === player.name)?.netAmount || 0).toLocaleString()}원
                   </div>
                 </div>
 
@@ -161,6 +233,13 @@ const LiveHoleEntry: React.FC<Props> = ({
                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                   </svg>
                 </button>
+              </div>
+
+              {/* Right: par-diff */}
+              <div className="w-28 flex items-center justify-end">
+                <div className={`text-3xl font-black tracking-tighter ${scoreColor}`}>
+                  {scoreDiff === null ? '0' : (scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff === 0 ? '0' : scoreDiff)}
+                </div>
               </div>
             </div>
           );

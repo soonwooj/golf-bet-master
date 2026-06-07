@@ -1,14 +1,13 @@
-
 import { Player } from "../types";
 
 const getGeminiAI = async () => {
   try {
     const module = await import('@google/genai');
     const GoogleGenAI = (module as any).GoogleGenAI;
-    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || '';
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 
     if (!apiKey) {
-      throw new Error('VITE_GOOGLE_API_KEY를 설정해주세요.');
+      throw new Error('VITE_GEMINI_API_KEY를 설정해주세요.');
     }
 
     return new GoogleGenAI({ apiKey });
@@ -23,12 +22,12 @@ export const parseScorecardImage = async (base64Image: string, holesRange?: { st
     throw new Error('서버 환경에서만 이미지 분석이 지원됩니다.');
   }
 
-  const model = 'gemini-3-flash-preview';
+  const model = 'gemini-2.5-flash-preview-05-20';
   const ai = await getGeminiAI();
   
   const rangeText = holesRange 
     ? `This image contains holes ${holesRange.start}-${holesRange.end}. Extract scores for these holes only.`
-    : 'Try to find all 18 holes if available, or as many as present.';
+    : 'Extract all 18 holes if available, or as many as visible.';
 
   const response = await ai.models.generateContent({
     model,
@@ -36,23 +35,30 @@ export const parseScorecardImage = async (base64Image: string, holesRange?: { st
       {
         parts: [
           {
-            text: `Extract the golf scorecard data from this image. 
-            Return a valid JSON array of players, each with their name and scores for each hole.
-            Each score object must have holeNumber (1-18), par (3, 4, or 5), and score (actual strokes).
-            If names are hard to read, use "Player 1", "Player 2", etc.
-            ${rangeText}
+            text: `You are an expert at reading Korean golf scorecards.
             
-            Return ONLY a valid JSON array, no other text.
-            Example format:
-            [
-              {
-                "name": "Player 1",
-                "scores": [
-                  {"holeNumber": 1, "par": 4, "score": 5},
-                  {"holeNumber": 2, "par": 4, "score": 4}
-                ]
-              }
-            ]`
+Carefully examine this golf scorecard image and extract ALL player scores.
+
+Rules:
+- Look for player names (한국어 이름 포함) in rows or columns
+- Each hole has a par value (3, 4, or 5) and each player has a stroke count
+- Stroke counts are typically between 1-10 per hole
+- PAR values are fixed per hole (look for "파" or "PAR" row)
+- Double-check each number carefully — misreading a digit is the most common error
+- If a name is unclear, use "플레이어 1", "플레이어 2", etc.
+${rangeText}
+
+Return ONLY a valid JSON array with NO extra text, NO markdown, NO code blocks.
+Format:
+[
+  {
+    "name": "홍길동",
+    "scores": [
+      {"holeNumber": 1, "par": 4, "score": 5},
+      {"holeNumber": 2, "par": 3, "score": 3}
+    ]
+  }
+]`
           },
           {
             inlineData: {
@@ -64,18 +70,20 @@ export const parseScorecardImage = async (base64Image: string, holesRange?: { st
       }
     ],
     config: {
-      responseMimeType: "application/json"
+      responseMimeType: "application/json",
+      thinkingConfig: { thinkingBudget: 8000 }
     }
   });
 
   const text = response.text;
   if (!text) throw new Error("No response from Gemini");
   
-  const rawPlayers = JSON.parse(text);
+  const clean = text.replace(/```json|```/g, '').trim();
+  const rawPlayers = JSON.parse(clean);
   
   return rawPlayers.map((p: any, idx: number) => ({
     id: `player-${idx}`,
-    name: p.name || `Player ${idx + 1}`,
+    name: p.name || `플레이어 ${idx + 1}`,
     scores: p.scores.map((s: any) => ({
       holeNumber: s.holeNumber,
       par: s.par || 4,
@@ -85,13 +93,9 @@ export const parseScorecardImage = async (base64Image: string, holesRange?: { st
 };
 
 export const parseTwoScorecardImages = async (base64Front: string, base64Back: string): Promise<Player[]> => {
-  // 앞 9홀 분석
   const frontPlayers = await parseScorecardImage(base64Front, { start: 1, end: 9 });
-  
-  // 뒷 9홀 분석
   const backPlayers = await parseScorecardImage(base64Back, { start: 10, end: 18 });
   
-  // 같은 이름의 선수는 병합
   const mergedPlayers: Player[] = [];
   
   frontPlayers.forEach(frontPlayer => {
@@ -103,7 +107,6 @@ export const parseTwoScorecardImages = async (base64Front: string, base64Back: s
         scores: [...frontPlayer.scores, ...backPlayer.scores].sort((a, b) => a.holeNumber - b.holeNumber)
       });
     } else {
-      // 뒷 9홀이 없으면 앞 9홀만 사용하되, 뒷 9홀은 파로 채움
       const defaultPars = [4, 4, 3, 5, 4, 4, 3, 4, 5];
       mergedPlayers.push({
         ...frontPlayer,
@@ -119,7 +122,6 @@ export const parseTwoScorecardImages = async (base64Front: string, base64Back: s
     }
   });
   
-  // 뒤 9홀에만 있는 선수
   backPlayers.forEach(backPlayer => {
     if (!mergedPlayers.find(mp => mp.name === backPlayer.name)) {
       const defaultPars = [4, 4, 3, 5, 4, 4, 3, 4, 5];
